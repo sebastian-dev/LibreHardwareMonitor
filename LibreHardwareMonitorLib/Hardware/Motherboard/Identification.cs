@@ -143,6 +143,8 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                     return Model.CROSSHAIR_III_FORMULA;
                 case var _ when name.Equals("ROG CROSSHAIR VIII HERO", StringComparison.OrdinalIgnoreCase):
                     return Model.ROG_CROSSHAIR_VIII_HERO;
+                case var _ when name.Equals("ROG CROSSHAIR VIII DARK HERO", StringComparison.OrdinalIgnoreCase):
+                    return Model.ROG_CROSSHAIR_VIII_DARK_HERO;
                 case var _ when name.Equals("M2N-SLI DELUXE", StringComparison.OrdinalIgnoreCase):
                     return Model.M2N_SLI_Deluxe;
                 case var _ when name.Equals("M4A79XTD EVO", StringComparison.OrdinalIgnoreCase):
@@ -174,6 +176,8 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                     return Model.LP_BI_P45_T2RS_Elite;
                 case var _ when name.Equals("ROG STRIX X470-I GAMING", StringComparison.OrdinalIgnoreCase):
                     return Model.ROG_STRIX_X470_I;
+                case var _ when name.Equals("ROG STRIX B550-I GAMING", StringComparison.OrdinalIgnoreCase):
+                    return Model.ROG_STRIX_B550_I_GAMING;
                 case var _ when name.Equals("ROG STRIX X570-E GAMING", StringComparison.OrdinalIgnoreCase):
                     return Model.ROG_STRIX_X570_E_GAMING;
                 case var _ when name.Equals("LP DK P55-T3eH9", StringComparison.OrdinalIgnoreCase):
