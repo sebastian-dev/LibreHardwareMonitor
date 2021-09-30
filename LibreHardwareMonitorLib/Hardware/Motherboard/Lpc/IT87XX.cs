@@ -74,6 +74,7 @@ namespace LibreHardwareMonitor.Hardware.Motherboard.Lpc
                          chip == Chip.IT8665E ||
                          chip == Chip.IT8686E ||
                          chip == Chip.IT8688E ||
+                         chip == Chip.IT8689E ||
                          chip == Chip.IT8628E ||
                          chip == Chip.IT8620E ||
                          chip == Chip.IT879XE ||
@@ -95,6 +96,14 @@ namespace LibreHardwareMonitor.Hardware.Motherboard.Lpc
                     Voltages = new float?[11];
                     Temperatures = new float?[6];
                     Fans = new float?[6];
+                    Controls = new float?[5];
+                    break;
+                }
+                case Chip.IT8689E:
+                {
+                    Voltages = new float?[10];
+                    Temperatures = new float?[6];
+                    Fans = new float?[5];
                     Controls = new float?[5];
                     break;
                 }
@@ -146,6 +155,7 @@ namespace LibreHardwareMonitor.Hardware.Motherboard.Lpc
                 case Chip.IT8772E:
                 case Chip.IT8686E:
                 case Chip.IT8688E:
+                case Chip.IT8689E:
                 {
                     _voltageGain = 0.012f;
                     break;
@@ -518,7 +528,7 @@ namespace LibreHardwareMonitor.Hardware.Motherboard.Lpc
 
         private readonly byte[] FAN_PWM_CTRL_REG;
         private readonly byte[] FAN_PWM_CTRL_EXT_REG = { 0x63, 0x6b, 0x73, 0x7b, 0xa3 };
-        private readonly byte[] FAN_TACHOMETER_EXT_REG = { 0x18, 0x19, 0x1a, 0x81, 0x83, 0x4c };
+        private readonly byte[] FAN_TACHOMETER_EXT_REG = { 0x18, 0x19, 0x1a, 0x81, 0x83, 0x4d };
         private readonly byte[] FAN_TACHOMETER_REG = { 0x0d, 0x0e, 0x0f, 0x80, 0x82, 0x4c };
 
         // Address of the Fan Controller Main Control Register.

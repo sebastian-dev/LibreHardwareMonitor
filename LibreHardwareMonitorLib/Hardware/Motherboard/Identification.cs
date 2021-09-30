@@ -145,6 +145,8 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                     return Model.ROG_CROSSHAIR_VIII_HERO;
                 case var _ when name.Equals("ROG CROSSHAIR VIII DARK HERO", StringComparison.OrdinalIgnoreCase):
                     return Model.ROG_CROSSHAIR_VIII_DARK_HERO;
+                case var _ when name.Equals("ROG CROSSHAIR VIII FORMULA", StringComparison.OrdinalIgnoreCase):
+                    return Model.ROG_CROSSHAIR_VIII_FORMULA;
                 case var _ when name.Equals("M2N-SLI DELUXE", StringComparison.OrdinalIgnoreCase):
                     return Model.M2N_SLI_Deluxe;
                 case var _ when name.Equals("M4A79XTD EVO", StringComparison.OrdinalIgnoreCase):
@@ -174,6 +176,8 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                     return Model.RAMPAGE_II_GENE;
                 case var _ when name.Equals("LP BI P45-T2RS Elite", StringComparison.OrdinalIgnoreCase):
                     return Model.LP_BI_P45_T2RS_Elite;
+                case var _ when name.Equals("ROG STRIX B550-F GAMING (WI-FI)", StringComparison.OrdinalIgnoreCase):
+                    return Model.ROG_STRIX_B550_F_GAMING_WIFI;
                 case var _ when name.Equals("ROG STRIX X470-I GAMING", StringComparison.OrdinalIgnoreCase):
                     return Model.ROG_STRIX_X470_I;
                 case var _ when name.Equals("ROG STRIX B550-I GAMING", StringComparison.OrdinalIgnoreCase):
@@ -271,6 +275,8 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                     return Model.Z390_M_GAMING;
                 case var _ when name.Equals("Z390 AORUS ULTRA", StringComparison.OrdinalIgnoreCase):
                     return Model.Z390_AORUS_ULTRA;
+                case var _ when name.Equals("Z390 AORUS PRO-CF", StringComparison.OrdinalIgnoreCase):
+                    return Model.Z390_AORUS_PRO;
                 case var _ when name.Equals("Z390 UD", StringComparison.OrdinalIgnoreCase):
                     return Model.Z390_UD;
                 case var _ when name.Equals("FH67", StringComparison.OrdinalIgnoreCase):
@@ -314,7 +320,9 @@ namespace LibreHardwareMonitor.Hardware.Motherboard
                 case var _ when name.Equals("X570 GAMING X", StringComparison.OrdinalIgnoreCase):
                     return Model.X570_GAMING_X;
                 case var _ when name.Equals("TUF GAMING B550M-PLUS (WI-FI)", StringComparison.OrdinalIgnoreCase):
-                    return Model.TUF_GAMING_B550M_PLUS_WIFI;    
+                    return Model.TUF_GAMING_B550M_PLUS_WIFI;
+                case var _ when name.Equals("B560M AORUS ELITE", StringComparison.OrdinalIgnoreCase):
+                    return Model.B560M_AORUS_ELITE;
                 case var _ when name.Equals("Base Board Product Name", StringComparison.OrdinalIgnoreCase):
                 case var _ when name.Equals("To be filled by O.E.M.", StringComparison.OrdinalIgnoreCase):
                     return Model.Unknown;
