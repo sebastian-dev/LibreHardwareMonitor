@@ -4,11 +4,11 @@
 // Partial Copyright (C) Michael Möller <mmoeller@openhardwaremonitor.org> and Contributors.
 // All Rights Reserved.
 
-using LibreHardwareMonitor.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using LibreHardwareMonitor.Interop;
 
 // ReSharper disable CommentTypo
 // ReSharper disable IdentifierTypo
@@ -17,9 +17,9 @@ using System.Text;
 namespace LibreHardwareMonitor.Hardware
 {
     /// <summary>
-    /// Chassis security status based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.3</see>.
+    /// System enclosure security status based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.3</see>.
     /// </summary>
-    public enum ChassisSecurityStatus
+    public enum SystemEnclosureSecurityStatus
     {
         Other = 1,
         Unknown,
@@ -29,9 +29,9 @@ namespace LibreHardwareMonitor.Hardware
     }
 
     /// <summary>
-    /// Chassis state based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.2</see>.
+    /// System enclosure state based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.2</see>.
     /// </summary>
-    public enum ChassisStates
+    public enum SystemEnclosureState
     {
         Other = 1,
         Unknown,
@@ -42,9 +42,9 @@ namespace LibreHardwareMonitor.Hardware
     }
 
     /// <summary>
-    /// Chassis type based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.1</see>.
+    /// System enclosure type based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.4.1</see>.
     /// </summary>
-    public enum ChassisType
+    public enum SystemEnclosureType
     {
         Other = 1,
         Unknown,
@@ -301,6 +301,22 @@ namespace LibreHardwareMonitor.Hardware
         Dsp,
         VideoProcessor
     }
+    
+    /// <summary>
+    /// Processor characteristics based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.5.9</see>.
+    /// </summary>
+    [Flags]
+    public enum ProcessorCharacteristics
+    {
+        None = 0,
+        _64BitCapable = 1,
+        MultiCore = 2,
+        HardwareThread = 4,
+        ExecuteProtection = 8,
+        EnhancedVirtualization = 16,
+        PowerPerformanceControl = 32,
+        _128BitCapable = 64
+    }
 
     /// <summary>
     /// Processor type based on <see href="https://www.dmtf.org/dsp/DSP0134">DMTF SMBIOS Reference Specification v.3.3.0, Chapter 7.5.1</see>.
@@ -425,6 +441,45 @@ namespace LibreHardwareMonitor.Hardware
         L3
     }
 
+    /// <summary>
+    /// Memory type.
+    /// </summary>
+    public enum MemoryType
+    {
+        Other = 0x01,
+        Unknown = 0x02,
+        DRAM = 0x03,
+        EDRAM = 0x04,
+        VRAM = 0x05,
+        SRAM = 0x06,
+        RAM = 0x07,
+        ROM = 0x08,
+        FLASH = 0x09,
+        EEPROM = 0x0a,
+        FEPROM = 0x0b,
+        EPROM = 0x0c,
+        CDRAM = 0x0d,
+        _3DRAM = 0x0e,
+        SDRAM = 0x0f,
+        SGRAM = 0x10,
+        RDRAM = 0x11,
+        DDR = 0x12,
+        DDR2 = 0x13,
+        DDR2_FBDIMM = 0x14,
+        DDR3 = 0x18,
+        FBD2 = 0x19,
+        DDR4 = 0x1a,
+        LPDDR = 0x1b,
+        LPDDR2 = 0x1c,
+        LPDDR3 = 0x1d,
+        LPDDR4 = 0x1e,
+        LogicalNonVolatileDevice = 0x1f,
+        HBM = 0x20,
+        HBM2 = 0x21,
+        DDR5 = 0x22,
+        LPDDR5 = 0x23,
+    }
+
     public class InformationBase
     {
         private readonly byte[] _data;
@@ -445,12 +500,11 @@ namespace LibreHardwareMonitor.Hardware
         /// Gets the byte.
         /// </summary>
         /// <param name="offset">The offset.</param>
-        /// <returns><see cref="int" />.</returns>
-        protected int GetByte(int offset)
+        /// <returns><see cref="byte" />.</returns>
+        protected byte GetByte(int offset)
         {
             if (offset < _data.Length && offset >= 0)
                 return _data[offset];
-
 
             return 0;
         }
@@ -459,12 +513,43 @@ namespace LibreHardwareMonitor.Hardware
         /// Gets the word.
         /// </summary>
         /// <param name="offset">The offset.</param>
-        /// <returns><see cref="int" />.</returns>
-        protected int GetWord(int offset)
+        /// <returns><see cref="ushort" />.</returns>
+        protected ushort GetWord(int offset)
         {
             if (offset + 1 < _data.Length && offset >= 0)
-                return (_data[offset + 1] << 8) | _data[offset];
+            {
+                return BitConverter.ToUInt16(_data, offset);
+            }
 
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets the dword.
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <returns><see cref="ushort" />.</returns>
+        protected uint GetDword(int offset)
+        {
+            if (offset + 3 < _data.Length && offset >= 0)
+            {
+                return BitConverter.ToUInt32(_data, offset);
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets the qword.
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <returns><see cref="ulong" />.</returns>
+        protected ulong GetQword(int offset)
+        {
+            if (offset + 7 < _data.Length && offset >= 0)
+            {
+                return BitConverter.ToUInt64(_data, offset);
+            }
 
             return 0;
         }
@@ -478,7 +563,6 @@ namespace LibreHardwareMonitor.Hardware
         {
             if (offset < _data.Length && _data[offset] > 0 && _data[offset] <= _strings.Count)
                 return _strings[_data[offset] - 1];
-
 
             return string.Empty;
         }
@@ -532,12 +616,11 @@ namespace LibreHardwareMonitor.Hardware
         private ulong? GetSize()
         {
             int biosRomSize = GetByte(0x09);
-            int extendedBiosRomSize = GetWord(0x18);
+            ushort extendedBiosRomSize = GetWord(0x18);
 
             bool isExtendedBiosRomSize = biosRomSize == 0xFF && extendedBiosRomSize != 0;
             if (!isExtendedBiosRomSize)
                 return 65536 * (ulong)(biosRomSize + 1);
-
 
             int unit = (extendedBiosRomSize & 0xC000) >> 14;
             ulong extendedSize = (ulong)(extendedBiosRomSize & ~0xC000) * 1024 * 1024;
@@ -567,9 +650,7 @@ namespace LibreHardwareMonitor.Hardware
             {
                 if (month > 12)
                 {
-                    int tmp = month;
-                    month = day;
-                    day = tmp;
+                    (month, day) = (day, month);
                 }
 
                 return new DateTime(year < 100 ? 1900 + year : year, month, day);
@@ -648,11 +729,11 @@ namespace LibreHardwareMonitor.Hardware
     }
 
     /// <summary>
-    /// Chassis information obtained from the SMBIOS table.
+    /// System enclosure obtained from the SMBIOS table.
     /// </summary>
-    public class ChassisInformation : InformationBase
+    public class SystemEnclosure : InformationBase
     {
-        internal ChassisInformation(byte[] data, IList<string> strings) : base(data, strings)
+        internal SystemEnclosure(byte[] data, IList<string> strings) : base(data, strings)
         {
             ManufacturerName = GetString(0x04).Trim();
             Version = GetString(0x06).Trim();
@@ -662,11 +743,11 @@ namespace LibreHardwareMonitor.Hardware
             PowerCords = GetByte(0x12);
             SKU = GetString(0x15).Trim();
             LockDetected = (GetByte(0x05) & 128) == 128;
-            ChassisType = (ChassisType)(GetByte(0x05) & 127);
-            BootUpState = (ChassisStates)GetByte(0x09);
-            PowerSupplyState = (ChassisStates)GetByte(0x0A);
-            ThermalState = (ChassisStates)GetByte(0x0B);
-            SecurityStatus = (ChassisSecurityStatus)GetByte(0x0C);
+            Type = (SystemEnclosureType)(GetByte(0x05) & 127);
+            BootUpState = (SystemEnclosureState)GetByte(0x09);
+            PowerSupplyState = (SystemEnclosureState)GetByte(0x0A);
+            ThermalState = (SystemEnclosureState)GetByte(0x0B);
+            SecurityStatus = (SystemEnclosureSecurityStatus)GetByte(0x0C);
         }
 
         /// <summary>
@@ -675,19 +756,14 @@ namespace LibreHardwareMonitor.Hardware
         public string AssetTag { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="ChassisStates" />
+        /// Gets <inheritdoc cref="SystemEnclosureState" />
         /// </summary>
-        public ChassisStates BootUpState { get; }
+        public SystemEnclosureState BootUpState { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="LibreHardwareMonitor.Hardware.ChassisType" />
+        /// Gets or sets the system enclosure lock.
         /// </summary>
-        public ChassisType ChassisType { get; }
-
-        /// <summary>
-        /// Gets or sets the chassis lock.
-        /// </summary>
-        /// <returns>Chassis lock is present if <see langword="true" />. Otherwise, either a lock is not present or it is unknown if the enclosure has a lock.</returns>
+        /// <returns>System enclosure lock is present if <see langword="true" />. Otherwise, either a lock is not present or it is unknown if the enclosure has a lock.</returns>
         public bool LockDetected { get; set; }
 
         /// <summary>
@@ -698,23 +774,23 @@ namespace LibreHardwareMonitor.Hardware
         /// <summary>
         /// Gets the number of power cords associated with the enclosure or chassis.
         /// </summary>
-        public int PowerCords { get; }
+        public byte PowerCords { get; }
 
         /// <summary>
         /// Gets the state of the enclosure’s power supply (or supplies) when last booted.
         /// </summary>
-        public ChassisStates PowerSupplyState { get; }
+        public SystemEnclosureState PowerSupplyState { get; }
 
         /// <summary>
         /// Gets the height of the enclosure, in 'U's. A U is a standard unit of measure for the height of a rack or rack-mountable component and is equal to 1.75 inches or 4.445 cm. A value of <c>0</c>
         /// indicates that the enclosure height is unspecified.
         /// </summary>
-        public int RackHeight { get; }
+        public byte RackHeight { get; }
 
         /// <summary>
         /// Gets the physical security status of the enclosure when last booted.
         /// </summary>
-        public ChassisSecurityStatus SecurityStatus { get; set; }
+        public SystemEnclosureSecurityStatus SecurityStatus { get; set; }
 
         /// <summary>
         /// Gets the string describing the chassis or enclosure serial number.
@@ -729,7 +805,12 @@ namespace LibreHardwareMonitor.Hardware
         /// <summary>
         /// Gets the thermal state of the enclosure when last booted.
         /// </summary>
-        public ChassisStates ThermalState { get; }
+        public SystemEnclosureState ThermalState { get; }
+
+        /// <summary>
+        /// Gets <inheritdoc cref="Type" />
+        /// </summary>
+        public SystemEnclosureType Type { get; }
 
         /// <summary>
         /// Gets the number of null-terminated string representing the chassis or enclosure version.
@@ -796,38 +877,105 @@ namespace LibreHardwareMonitor.Hardware
             MaxSpeed = GetWord(0x14);
             CurrentSpeed = GetWord(0x16);
             Serial = GetString(0x20).Trim();
+            Id = GetQword(0x08);
+            Handle = GetWord(0x02);
+
+            byte characteristics1 = GetByte(0x26);
+            byte characteristics2 = GetByte(0x27);
+
+            Characteristics = ProcessorCharacteristics.None;
+            if (IsBitSet(characteristics1, 2))
+                Characteristics |= ProcessorCharacteristics._64BitCapable;
+
+            if (IsBitSet(characteristics1, 3))
+                Characteristics |= ProcessorCharacteristics.MultiCore;
+
+            if (IsBitSet(characteristics1, 4))
+                Characteristics |= ProcessorCharacteristics.HardwareThread;
+
+            if (IsBitSet(characteristics1, 5))
+                Characteristics |= ProcessorCharacteristics.ExecuteProtection;
+
+            if (IsBitSet(characteristics1, 6))
+                Characteristics |= ProcessorCharacteristics.EnhancedVirtualization;
+
+            if (IsBitSet(characteristics1, 7))
+                Characteristics |= ProcessorCharacteristics.PowerPerformanceControl;
+
+            if (IsBitSet(characteristics2, 0))
+                Characteristics |= ProcessorCharacteristics._128BitCapable;
 
             ProcessorType = (ProcessorType)GetByte(0x05);
             Socket = (ProcessorSocket)GetByte(0x19);
 
             int family = GetByte(0x06);
             Family = (ProcessorFamily)(family == 254 ? GetWord(0x28) : family);
+
+            L1CacheHandle = GetWord(0x1A);
+            L2CacheHandle = GetWord(0x1C);
+            L3CacheHandle = GetWord(0x1E);
+
+            bool IsBitSet(byte b, int pos)
+            {
+                return (b & (1 << pos)) != 0;
+            }
         }
+
+        /// <summary>
+        /// Gets the characteristics of the processor.
+        /// </summary>
+        public ProcessorCharacteristics Characteristics { get; }
 
         /// <summary>
         /// Gets the value that represents the number of cores per processor socket.
         /// </summary>
-        public int CoreCount { get; }
+        public ushort CoreCount { get; }
 
         /// <summary>
         /// Gets the value that represents the number of enabled cores per processor socket.
         /// </summary>
-        public int CoreEnabled { get; }
+        public ushort CoreEnabled { get; }
 
         /// <summary>
         /// Gets the value that represents the current processor speed (in MHz).
         /// </summary>
-        public int CurrentSpeed { get; }
+        public ushort CurrentSpeed { get; }
 
         /// <summary>
         /// Gets the external Clock Frequency, in MHz. If the value is unknown, the field is set to 0.
         /// </summary>
-        public int ExternalClock { get; }
+        public ushort ExternalClock { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="LibreHardwareMonitor.Hardware.ProcessorFamily" />
+        /// Gets <inheritdoc cref="ProcessorFamily" />
         /// </summary>
         public ProcessorFamily Family { get; }
+
+        /// <summary>
+        /// Gets the handle.
+        /// </summary>
+        /// <value>The handle.</value>
+        public ushort Handle { get; }
+
+        /// <summary>
+        /// Gets the identifier.
+        /// </summary>
+        public ulong Id { get; }
+
+        /// <summary>
+        /// Gets the L1 cache handle.
+        /// </summary>
+        public ushort L1CacheHandle { get; }
+
+        /// <summary>
+        /// Gets the L2 cache handle.
+        /// </summary>
+        public ushort L2CacheHandle { get; }
+
+        /// <summary>
+        /// Gets the L3 cache handle.
+        /// </summary>
+        public ushort L3CacheHandle { get; }
 
         /// <summary>
         /// Gets the string number of Processor Manufacturer.
@@ -837,7 +985,7 @@ namespace LibreHardwareMonitor.Hardware
         /// <summary>
         /// Gets the value that represents the maximum processor speed (in MHz) supported by the system for this processor socket.
         /// </summary>
-        public int MaxSpeed { get; }
+        public ushort MaxSpeed { get; }
 
         /// <summary>
         /// Gets <inheritdoc cref="LibreHardwareMonitor.Hardware.ProcessorType" />
@@ -851,7 +999,7 @@ namespace LibreHardwareMonitor.Hardware
         public string Serial { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="LibreHardwareMonitor.Hardware.ProcessorSocket" />
+        /// Gets <inheritdoc cref="ProcessorSocket" />
         /// </summary>
         public ProcessorSocket Socket { get; }
 
@@ -863,7 +1011,7 @@ namespace LibreHardwareMonitor.Hardware
         /// <summary>
         /// Gets the value that represents the number of threads per processor socket.
         /// </summary>
-        public int ThreadCount { get; }
+        public ushort ThreadCount { get; }
 
         /// <summary>
         /// Gets the value that represents the string number describing the Processor.
@@ -872,12 +1020,13 @@ namespace LibreHardwareMonitor.Hardware
     }
 
     /// <summary>
-    /// Processor cache information obtained from the SMBIOS table.
+    /// Cache information obtained from the SMBIOS table.
     /// </summary>
-    public class ProcessorCache : InformationBase
+    public class CacheInformation : InformationBase
     {
-        internal ProcessorCache(byte[] data, IList<string> strings) : base(data, strings)
+        internal CacheInformation(byte[] data, IList<string> strings) : base(data, strings)
         {
+            Handle = GetWord(0x02);
             Designation = GetCacheDesignation();
             Associativity = (CacheAssociativity)GetByte(0x12);
             Size = GetWord(0x09);
@@ -894,9 +1043,14 @@ namespace LibreHardwareMonitor.Hardware
         public CacheDesignation Designation { get; }
 
         /// <summary>
+        /// Gets the handle.
+        /// </summary>
+        public ushort Handle { get; }
+
+        /// <summary>
         /// Gets the value that represents the installed cache size.
         /// </summary>
-        public int Size { get; }
+        public ushort Size { get; }
 
         /// <summary>
         /// Gets the cache designation.
@@ -914,7 +1068,6 @@ namespace LibreHardwareMonitor.Hardware
 
             if (rawCacheType.Contains("L3"))
                 return CacheDesignation.L3;
-
 
             return CacheDesignation.Other;
         }
@@ -934,6 +1087,7 @@ namespace LibreHardwareMonitor.Hardware
             PartNumber = GetString(0x1A).Trim();
             Speed = GetWord(0x15);
             Size = GetWord(0x0C);
+            Type = (MemoryType)GetByte(0x12);
 
             if (GetWord(0x1C) > 0)
                 Size += GetWord(0x1C);
@@ -967,12 +1121,18 @@ namespace LibreHardwareMonitor.Hardware
         /// <summary>
         /// Gets the size of the memory device. If the value is 0, no memory device is installed in the socket.
         /// </summary>
-        public int Size { get; }
+        public ushort Size { get; }
 
         /// <summary>
-        /// Gets the the value that identifies the maximum capable speed of the device, in mega transfers per second (MT/s).
+        /// Gets the value that identifies the maximum capable speed of the device, in mega transfers per second (MT/s).
         /// </summary>
-        public int Speed { get; }
+        public ushort Speed { get; }
+
+        /// <summary>
+        /// Gets the type of this memory device.
+        /// </summary>
+        /// <value>The type.</value>
+        public MemoryType Type { get; }
     }
 
     /// <summary>
@@ -983,6 +1143,9 @@ namespace LibreHardwareMonitor.Hardware
         private readonly byte[] _raw;
         private readonly Version _version;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SMBios" /> class.
+        /// </summary>
         public SMBios()
         {
             if (Software.OperatingSystem.IsUnix)
@@ -1004,12 +1167,13 @@ namespace LibreHardwareMonitor.Hardware
                 string biosDate = ReadSysFs("/sys/class/dmi/id/bios_date");
                 Bios = new BiosInformation(biosVendor, biosVersion, biosDate);
 
-                MemoryDevices = new MemoryDevice[0];
+                MemoryDevices = Array.Empty<MemoryDevice>();
             }
             else
             {
                 List<MemoryDevice> memoryDeviceList = new();
-                List<ProcessorCache> processorCacheList = new();
+                List<CacheInformation> processorCacheList = new();
+                List<ProcessorInformation> processorInformationList = new();
 
                 string[] tables = FirmwareTable.EnumerateTables(Kernel32.Provider.RSMB);
                 if (tables is { Length: > 0 })
@@ -1017,7 +1181,6 @@ namespace LibreHardwareMonitor.Hardware
                     _raw = FirmwareTable.GetTable(Kernel32.Provider.RSMB, tables[0]);
                     if (_raw == null || _raw.Length == 0)
                         return;
-
 
                     byte majorVersion = _raw[1];
                     byte minorVersion = _raw[2];
@@ -1037,7 +1200,6 @@ namespace LibreHardwareMonitor.Hardware
 
                             if (offset + length > _raw.Length)
                                 break;
-
 
                             byte[] data = new byte[length];
                             Array.Copy(_raw, offset, data, 0, length);
@@ -1082,24 +1244,22 @@ namespace LibreHardwareMonitor.Hardware
                                 }
                                 case 0x03:
                                 {
-                                    Chassis = new ChassisInformation(data, strings);
+                                    SystemEnclosure = new SystemEnclosure(data, strings);
                                     break;
                                 }
                                 case 0x04:
                                 {
-                                    Processor = new ProcessorInformation(data, strings);
+                                    processorInformationList.Add(new ProcessorInformation(data, strings));
                                     break;
                                 }
                                 case 0x07:
                                 {
-                                    ProcessorCache processorCache = new(data, strings);
-                                    processorCacheList.Add(processorCache);
+                                    processorCacheList.Add(new CacheInformation(data, strings));
                                     break;
                                 }
                                 case 0x11:
                                 {
-                                    MemoryDevice memoryDevice = new(data, strings);
-                                    memoryDeviceList.Add(memoryDevice);
+                                    memoryDeviceList.Add(new MemoryDevice(data, strings));
                                     break;
                                 }
                             }
@@ -1109,6 +1269,7 @@ namespace LibreHardwareMonitor.Hardware
 
                 MemoryDevices = memoryDeviceList.ToArray();
                 ProcessorCaches = processorCacheList.ToArray();
+                Processors = processorInformationList.ToArray();
             }
         }
 
@@ -1123,29 +1284,29 @@ namespace LibreHardwareMonitor.Hardware
         public BaseBoardInformation Board { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="ChassisInformation" />
-        /// </summary>
-        public ChassisInformation Chassis { get; }
-
-        /// <summary>
         /// Gets <inheritdoc cref="MemoryDevice" />
         /// </summary>
         public MemoryDevice[] MemoryDevices { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="ProcessorInformation" />
+        /// Gets <inheritdoc cref="CacheInformation" />
         /// </summary>
-        public ProcessorInformation Processor { get; }
+        public CacheInformation[] ProcessorCaches { get; }
 
         /// <summary>
-        /// Gets <inheritdoc cref="ProcessorCache" />
+        /// Gets <inheritdoc cref="ProcessorInformation" />
         /// </summary>
-        public ProcessorCache[] ProcessorCaches { get; }
+        public ProcessorInformation[] Processors { get; }
 
         /// <summary>
         /// Gets <inheritdoc cref="SystemInformation" />
         /// </summary>
         public SystemInformation System { get; }
+
+        /// <summary>
+        /// Gets <inheritdoc cref="LibreHardwareMonitor.Hardware.SystemEnclosure" />
+        /// </summary>
+        public SystemEnclosure SystemEnclosure { get; }
 
         private static string ReadSysFs(string path)
         {
@@ -1232,79 +1393,82 @@ namespace LibreHardwareMonitor.Hardware
                 r.AppendLine();
             }
 
-            if (Chassis != null)
+            if (SystemEnclosure != null)
             {
-                r.Append("Chassis Type: ");
-                r.AppendLine(Chassis.ChassisType.ToString());
-                r.Append("Chassis Manufacturer: ");
-                r.AppendLine(Chassis.ManufacturerName);
-                r.Append("Chassis Version: ");
-                r.AppendLine(Chassis.Version);
-                r.Append("Chassis Serial: ");
-                r.AppendLine(Chassis.SerialNumber);
-                r.Append("Chassis Asset Tag: ");
-                r.AppendLine(Chassis.AssetTag);
-                if (!string.IsNullOrEmpty(Chassis.SKU))
+                r.Append("System Enclosure Type: ");
+                r.AppendLine(SystemEnclosure.Type.ToString());
+                r.Append("System Enclosure Manufacturer: ");
+                r.AppendLine(SystemEnclosure.ManufacturerName);
+                r.Append("System Enclosure Version: ");
+                r.AppendLine(SystemEnclosure.Version);
+                r.Append("System Enclosure Serial: ");
+                r.AppendLine(SystemEnclosure.SerialNumber);
+                r.Append("System Enclosure Asset Tag: ");
+                r.AppendLine(SystemEnclosure.AssetTag);
+                if (!string.IsNullOrEmpty(SystemEnclosure.SKU))
                 {
-                    r.Append("Chassis SKU: ");
-                    r.AppendLine(Chassis.SKU);
+                    r.Append("System Enclosure SKU: ");
+                    r.AppendLine(SystemEnclosure.SKU);
                 }
 
-                r.Append("Chassis Boot Up State: ");
-                r.AppendLine(Chassis.BootUpState.ToString());
-                r.Append("Chassis Power Supply State: ");
-                r.AppendLine(Chassis.PowerSupplyState.ToString());
-                r.Append("Chassis Thermal State: ");
-                r.AppendLine(Chassis.ThermalState.ToString());
-                r.Append("Chassis Power Cords: ");
-                r.AppendLine(Chassis.PowerCords.ToString());
-                if (Chassis.RackHeight > 0)
+                r.Append("System Enclosure Boot Up State: ");
+                r.AppendLine(SystemEnclosure.BootUpState.ToString());
+                r.Append("System Enclosure Power Supply State: ");
+                r.AppendLine(SystemEnclosure.PowerSupplyState.ToString());
+                r.Append("System Enclosure Thermal State: ");
+                r.AppendLine(SystemEnclosure.ThermalState.ToString());
+                r.Append("System Enclosure Power Cords: ");
+                r.AppendLine(SystemEnclosure.PowerCords.ToString());
+                if (SystemEnclosure.RackHeight > 0)
                 {
-                    r.Append("Chassis Rack Height: ");
-                    r.AppendLine(Chassis.RackHeight.ToString());
+                    r.Append("System Enclosure Rack Height: ");
+                    r.AppendLine(SystemEnclosure.RackHeight.ToString());
                 }
 
-                r.Append("Chassis Lock Detected: ");
-                r.AppendLine(Chassis.LockDetected ? "Yes" : "No");
-                r.Append("Chassis Security Status: ");
-                r.AppendLine(Chassis.SecurityStatus.ToString());
+                r.Append("System Enclosure Lock Detected: ");
+                r.AppendLine(SystemEnclosure.LockDetected ? "Yes" : "No");
+                r.Append("System Enclosure Security Status: ");
+                r.AppendLine(SystemEnclosure.SecurityStatus.ToString());
                 r.AppendLine();
             }
 
-            if (Processor != null)
+            if (Processors != null)
             {
-                r.Append("Processor Manufacturer: ");
-                r.AppendLine(Processor.ManufacturerName);
-                r.Append("Processor Type: ");
-                r.AppendLine(Processor.ProcessorType.ToString());
-                r.Append("Processor Version: ");
-                r.AppendLine(Processor.Version);
-                r.Append("Processor Serial: ");
-                r.AppendLine(Processor.Serial);
-                r.Append("Processor Socket Destignation: ");
-                r.AppendLine(Processor.SocketDesignation);
-                r.Append("Processor Socket: ");
-                r.AppendLine(Processor.Socket.ToString());
-                r.Append("Processor Version: ");
-                r.AppendLine(Processor.Version);
-                r.Append("Processor Family: ");
-                r.AppendLine(Processor.Family.ToString());
-                r.Append("Processor Core Count: ");
-                r.AppendLine(Processor.CoreCount.ToString());
-                r.Append("Processor Core Enabled: ");
-                r.AppendLine(Processor.CoreEnabled.ToString());
-                r.Append("Processor Thread Count: ");
-                r.AppendLine(Processor.ThreadCount.ToString());
-                r.Append("Processor External Clock: ");
-                r.Append(Processor.ExternalClock);
-                r.AppendLine(" Mhz");
-                r.Append("Processor Max Speed: ");
-                r.Append(Processor.MaxSpeed);
-                r.AppendLine(" Mhz");
-                r.Append("Processor Current Speed: ");
-                r.Append(Processor.CurrentSpeed);
-                r.AppendLine(" Mhz");
-                r.AppendLine();
+                foreach (ProcessorInformation processor in Processors)
+                {
+                    r.Append("Processor Manufacturer: ");
+                    r.AppendLine(processor.ManufacturerName);
+                    r.Append("Processor Type: ");
+                    r.AppendLine(processor.ProcessorType.ToString());
+                    r.Append("Processor Version: ");
+                    r.AppendLine(processor.Version);
+                    r.Append("Processor Serial: ");
+                    r.AppendLine(processor.Serial);
+                    r.Append("Processor Socket Destignation: ");
+                    r.AppendLine(processor.SocketDesignation);
+                    r.Append("Processor Socket: ");
+                    r.AppendLine(processor.Socket.ToString());
+                    r.Append("Processor Version: ");
+                    r.AppendLine(processor.Version);
+                    r.Append("Processor Family: ");
+                    r.AppendLine(processor.Family.ToString());
+                    r.Append("Processor Core Count: ");
+                    r.AppendLine(processor.CoreCount.ToString());
+                    r.Append("Processor Core Enabled: ");
+                    r.AppendLine(processor.CoreEnabled.ToString());
+                    r.Append("Processor Thread Count: ");
+                    r.AppendLine(processor.ThreadCount.ToString());
+                    r.Append("Processor External Clock: ");
+                    r.Append(processor.ExternalClock);
+                    r.AppendLine(" Mhz");
+                    r.Append("Processor Max Speed: ");
+                    r.Append(processor.MaxSpeed);
+                    r.AppendLine(" Mhz");
+                    r.Append("Processor Current Speed: ");
+                    r.Append(processor.CurrentSpeed);
+                    r.AppendLine(" Mhz");
+                    r.AppendLine();
+                }
             }
 
             for (int i = 0; i < ProcessorCaches.Length; i++)
